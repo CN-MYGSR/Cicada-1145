@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICADA 1145 // 标记</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="badend-body">
+<canvas class="static" id="static"></canvas>
+<main class="frame shake">
+  <h1 class="glitch">你被标记了。</h1>
+
+  <p class="alert">信号丢失。CICADA 1145 已记录你的身份。</p>
+  <p class="body dim">你在错误的路上浪费了太多时间……<br>或者，你欺骗了我们。</p>
+
+  <h2>系统信息</h2>
+  <table class="sysinfo" id="sysinfo"></table>
+
+  <p class="alert">不要再来。我们会在别处找到你。</p>
+  <p class="dim small">刷新没有用。</p>
+</main>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  var NS = window.CICADA;
+  NS.initPage('badend');
+
+  NS.mark();
+
+  var table = document.getElementById('sysinfo');
+  NS.systemInfo().forEach(function (row) {
+    var tr = document.createElement('tr');
+    var td1 = document.createElement('td');
+    var td2 = document.createElement('td');
+    td1.textContent = row[0];
+    td2.textContent = row[1];
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    table.appendChild(tr);
+  });
+
+  var canvas = document.getElementById('static');
+  var cctx = canvas.getContext('2d');
+  function fit() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  var img = cctx.createImageData(canvas.width, canvas.height);
+  function drawStatic() {
+    var d = img.data;
+    for (var i = 0; i < d.length; i += 4) {
+      var v = Math.random() * 255;
+      d[i] = d[i + 1] = d[i + 2] = v;
+      d[i + 3] = 255;
+    }
+    cctx.putImageData(img, 0, 0);
+  }
+  setInterval(drawStatic, 90);
+
+  document.addEventListener('click', function once() {
+    NS.startDrone();
+    document.removeEventListener('click', once);
+  }, { once: true });
+})();
+</script>
+</body>
+</html>

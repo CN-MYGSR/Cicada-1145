@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICADA 1145 :: 大门</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main class="frame">
+  <h1 class="sigil">档案 <span class="accent">999</span> —— 大门</h1>
+
+  <p class="dim">你收集的每一片碎片，最终都要在这里拼合。</p>
+  <p class="dim">钥匙由三部分组成：第一部分-1145-第三部分。拉丁字母全部大写。</p>
+
+  <p class="body" id="marked-warn" hidden>标记者。我们不欢迎你。</p>
+
+  <p class="status-line dim" id="status">等待钥匙...</p>
+
+  <input type="text" id="key" placeholder="XXX-1145-XXXXXX" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button id="verify">验证</button>
+
+  <p class="dim small">尝试次数：<span id="tries">0</span> / 5</p>
+
+  <details>
+    <summary>验证你的钥匙（可选）</summary>
+    <p class="dim small">在游戏文件夹中运行以下命令（把 你的钥匙 替换为你拼出的内容），
+    输出 KEY OK 即代表正确：</p>
+    <code class="code">powershell -ExecutionPolicy Bypass -File files/verify.ps1 -Key 你的钥匙</code>
+    <p class="dim small">SHA-256 指纹：<span class="sync-ok">db9917594a4382f174969249fa05678d0bcbfea5b2b669832a0563ba80ab9155</span></p>
+  </details>
+</main>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  var NS = window.CICADA;
+  NS.initPage('door');
+
+  var input = document.getElementById('key');
+  var button = document.getElementById('verify');
+  var statusEl = document.getElementById('status');
+  var triesEl = document.getElementById('tries');
+  var markedWarn = document.getElementById('marked-warn');
+
+  var tries = parseInt(localStorage.getItem('door_tries') || '0', 10);
+  triesEl.textContent = String(tries);
+
+  if (NS.isMarked()) {
+    markedWarn.hidden = false;
+  }
+  if (NS.passed()) {
+    statusEl.textContent = '你已经通过了。';
+    statusEl.className = 'status-line sync-ok';
+  }
+
+  function normalize(v) {
+    return v.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
+
+  function goBad(reason) {
+    NS.mark();
+    localStorage.setItem('door_tries', '0');
+    location.href = 'badend.html' + (reason ? '#fake' : '');
+  }
+
+  function submit() {
+    var raw = input.value.trim();
+    if (!raw) { return; }
+    var n = normalize(raw);
+
+    if (n.indexOf('MENDACIUM') !== -1 || n.indexOf('OBSCURUM') !== -1) {
+      goBad('fake');
+      return;
+    }
+    if (n === 'VERITAS1145SAPERE') {
+      NS.setPassed();
+      localStorage.setItem('door_tries', '0');
+      location.href = 'end.html';
+      return;
+    }
+    if (n === 'VERITAS' || n === '1145' || n === 'SAPERE') {
+      statusEl.textContent = '不完整。它需要三部分。';
+      statusEl.className = 'status-line alert';
+      return;
+    }
+    tries += 1;
+    localStorage.setItem('door_tries', String(tries));
+    triesEl.textContent = String(tries);
+    if (tries >= 5) {
+      goBad('brute');
+      return;
+    }
+    statusEl.textContent = '钥匙错误。';
+    statusEl.className = 'status-line alert';
+  }
+
+  button.addEventListener('click', submit);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { submit(); }
+  });
+})();
+</script>
+</body>
+</html>

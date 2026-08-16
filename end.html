@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICADA 1145 :: 终点</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<!-- VEhFIEVORCBJUyBPTkxZIFRIRSBCRUdJTk5JTkcuIFNUQVkgSU4gVEhFIERBUksu -->
+<main class="frame" id="gate">
+  <h1 class="sigil">档案 <span class="accent">000</span> —— 终点</h1>
+
+  <div id="locked-view">
+    <p class="alert">这里不对你开放。</p>
+    <p class="dim">你需要先通过<a href="door.html">大门</a>。</p>
+  </div>
+
+  <div id="end-view" hidden>
+    <p class="lead">欢迎，侦察者。</p>
+    <p class="body">你拼合了碎片：</p>
+    <p class="body">
+      <span class="sync-ok">VERITAS</span> —— 真理，我们的格言<br>
+      <span class="sync-ok">1145</span> —— 时间，对齐的时刻<br>
+      <span class="sync-ok">SAPERE</span> —— 敢去知道
+    </p>
+    <p class="body dim">我们只相信验证过的真理。这扇门之后，还有最后一步——证明你是你。</p>
+
+    <hr class="divider">
+
+    <h2>身份验证</h2>
+    <p class="dim small">这不是破解，只是身份确认——就像原版 CICADA 使用 PGP 验证招募对象一样。
+    在游戏文件夹中运行下面的命令（PowerShell 或 Python 二选一），把输出粘贴回来。</p>
+
+    <p class="dim small">PowerShell（Windows）：</p>
+    <code class="code">powershell -ExecutionPolicy Bypass -File files/verify.ps1</code>
+
+    <p class="dim small">Python：</p>
+    <code class="code">python -c "import hashlib,getpass;print(hashlib.sha256((getpass.getuser()+'VERITAS-1145-SAPERE').encode('utf-8')).hexdigest())"</code>
+
+    <p class="dim small">你的系统用户名：<input type="text" id="uname" style="width:220px;" autocomplete="off" spellcheck="false" placeholder="例如 Administrator"></p>
+    <p class="dim small">命令输出：<input type="text" id="uout" style="width:420px;" autocomplete="off" spellcheck="false" placeholder="粘贴 SHA-256 输出"></p>
+    <button id="verify-id">验证身份</button>
+    <p class="status-line" id="id-status"></p>
+
+    <hr class="divider">
+
+    <div class="card fadein" id="card" hidden>
+      <p class="dim small">CICADA 1145 · MEMBER</p>
+      <p class="card-id" id="card-id">CID-1145-????</p>
+      <p class="card-seal">VERITAS · 1145 · SAPERE</p>
+    </div>
+
+    <hr class="divider">
+
+    <h2>签名</h2>
+    <pre class="cipher">-----BEGIN CICADA 1145 SIGNATURE-----
+VkVSSUZJRUQgQlkgQ0lDQURBIDExNDUuIFdFTENPTUUsIFJFQ1JVSVQu
+-----END CICADA 1145 SIGNATURE-----</pre>
+
+    <details>
+      <summary>验证签名指纹（可选）</summary>
+      <p class="dim small">对下方这句话计算 SHA-256，应等于指纹：</p>
+      <code class="code">CICADA 1145 :: VERITAS OMNIA VINCIT :: SAPERE AUDE</code>
+      <code class="code">powershell -NoProfile -Command "$sha=[System.Security.Cryptography.SHA256]::Create(); $b=[System.Text.Encoding]::UTF8.GetBytes('CICADA 1145 :: VERITAS OMNIA VINCIT :: SAPERE AUDE'); ($sha.ComputeHash($b) | ForEach-Object { $_.ToString('x2') }) -join ''"</code>
+      <p class="dim small">SHA-256 指纹：<span class="sync-ok">bce0058d7adaf0496a0f8395b299e2a049e87eec6ec008ae166b38b90ab5bd26</span></p>
+    </details>
+
+    <p class="dim small">从现在起，你属于这里。第 1145 天，你被记录了。</p>
+  </div>
+</main>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  var NS = window.CICADA;
+  NS.initPage('end');
+
+  var gate = document.getElementById('gate');
+  var lockedView = document.getElementById('locked-view');
+  var endView = document.getElementById('end-view');
+
+  if (NS.passed()) {
+    lockedView.hidden = true;
+    endView.hidden = false;
+  }
+
+  var btn = document.getElementById('verify-id');
+  var statusEl = document.getElementById('id-status');
+  var card = document.getElementById('card');
+  var cardId = document.getElementById('card-id');
+
+  btn.addEventListener('click', function () {
+    var name = document.getElementById('uname').value.trim();
+    var out = document.getElementById('uout').value.trim().toLowerCase();
+    if (!name || !out) {
+      statusEl.textContent = '两个输入框都需要填写。';
+      statusEl.className = 'status-line alert';
+      return;
+    }
+    statusEl.textContent = '验证中...';
+    statusEl.className = 'status-line dim';
+    NS.hashHex(name + 'VERITAS-1145-SAPERE').then(function (expected) {
+      if (out === expected) {
+        var num = Math.abs(name.split('').reduce(function (a, c) { return a + c.charCodeAt(0); }, 0) % 9000) + 1000;
+        cardId.textContent = 'CID-1145-' + num;
+        statusEl.textContent = 'CICADA 1145 // 已验证：' + name + ' // 欢迎加入。';
+        statusEl.className = 'status-line sync-ok';
+        card.hidden = false;
+        NS.startChord();
+      } else {
+        statusEl.textContent = '身份不匹配。检查你是否粘贴了命令的完整输出。';
+        statusEl.className = 'status-line alert';
+      }
+    }).catch(function () {
+      statusEl.textContent = '无法在此环境计算哈希（用户名需为 ASCII）。PowerShell 验证不受影响。';
+      statusEl.className = 'status-line alert';
+    });
+  });
+})();
+</script>
+</body>
+</html>

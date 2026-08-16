@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICADA 1145</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="page-index">
+<!-- ZmlsZXMvcmVhZG1lLnR4dA== -->
+<main class="frame">
+  <div class="tline dim" data-type="> 建立连接...">> 建立连接...</div>
+  <div class="tline dim" data-type="> 找到来源: cicada1145.void">> 找到来源: cicada1145.void</div>
+  <div class="tline dim" data-type="> 读取档案...">> 读取档案...</div>
+  <div class="tline dim" data-type="> 解密身份层...">> 解密身份层...</div>
+
+  <h1 class="sigil">CICADA <span class="accent">1145</span></h1>
+
+  <p class="lead">我们正在寻找高智商个体。</p>
+
+  <p class="body">如果你发现了一个隐秘的网页、一个隐藏的档案、<br>一个无法解释的符号——那么你已经进入了我们的视线。</p>
+  <p class="body dim">起点在档案室里。</p>
+
+  <div class="clockbox">
+    <span>你的系统时间 <b id="clock">--:--:--</b></span>
+    <span id="sync">时间同步：检测中...</span>
+  </div>
+
+  <p class="body dim">我们只相信验证过的真理。</p>
+  <p class="body dim fadein" id="doorline" hidden>时钟已对齐。<a href="door.html">大门为你敞开。</a></p>
+  <p class="body alert fadein" id="markedline" hidden>我们已经见过你了。</p>
+</main>
+<script src="assets/common.js"></script>
+<script>
+(function () {
+  var NS = window.CICADA;
+  NS.initPage('index');
+
+  var clockEl = document.getElementById('clock');
+  var syncEl = document.getElementById('sync');
+  var doorline = document.getElementById('doorline');
+  var markedline = document.getElementById('markedline');
+
+  function tick() {
+    clockEl.textContent = NS.nowStr();
+    if (NS.aligned()) {
+      syncEl.textContent = '时间同步：已对齐';
+      syncEl.className = 'sync-ok';
+      doorline.hidden = false;
+    } else {
+      syncEl.textContent = '时间同步：未对齐（提示：11:45 或 14:45）';
+      syncEl.className = 'sync-bad';
+      doorline.hidden = true;
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  if (NS.isMarked()) {
+    markedline.hidden = false;
+  }
+
+  NS.runTyping('[data-type]');
+})();
+</script>
+</body>
+</html>

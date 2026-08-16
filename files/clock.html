@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICADA 1145 :: 档案 007</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main class="frame">
+  <h1 class="sigil">档案 <span class="accent">007</span> —— 时钟</h1>
+
+  <p class="dim">它只有在与你同步的时候才肯说话。</p>
+
+  <div class="clockbox">
+    <span>当前时间 <b id="clock" style="font-size:20px;">--:--:--</b></span>
+    <span id="sync">对齐检测中...</span>
+  </div>
+
+  <div id="aligned-view" hidden>
+    <p class="sync-ok">时钟已对齐。它说：</p>
+    <pre class="cipher" id="true-cipher"></pre>
+    <p class="dim small">把它带回去。大门在等你。</p>
+  </div>
+
+  <div id="unaligned-view" hidden>
+    <p class="alert">时钟未对齐。它拒绝开口，只丢给你一句话：</p>
+    <pre class="cipher" id="fake-cipher"></pre>
+    <p class="dim small">（提示：把系统时间调成 11:45–11:59 或 14:00–14:59，再刷新本页。）</p>
+  </div>
+
+  <hr class="divider">
+  <p class="dim small">准备好了就前往<a href="../door.html">大门</a>。</p>
+</main>
+<script src="../assets/common.js"></script>
+<script>
+(function () {
+  var NS = window.CICADA;
+  NS.initPage('clock');
+
+  var TRUE_OBS = 'PTRTUlNWRVVCTkZJemxHSTBKWFl3QkNaeWxHYTBCU1pvUkZJdVVETnhFREl6bEdJMEpYWXdCQ1p1OTJZbE5ISWxoR1Y=';
+  var FAKE = 'WW91IGFyZSB0b28gZWFybHkgb3IgdG9vIGxhdGUuIFRoZSB0aGlyZCBwYXJ0IGlzIE1FTkRBQ0lVTS4=';
+
+  var clockEl = document.getElementById('clock');
+  var syncEl = document.getElementById('sync');
+  var alignedView = document.getElementById('aligned-view');
+  var unalignedView = document.getElementById('unaligned-view');
+  var trueCipher = document.getElementById('true-cipher');
+  var fakeCipher = document.getElementById('fake-cipher');
+
+  function deob(x) {
+    return btoa(atob(x).split('').reverse().join(''));
+  }
+
+  function refresh() {
+    clockEl.textContent = NS.nowStr();
+    if (NS.aligned()) {
+      syncEl.textContent = '对齐检测：已对齐';
+      syncEl.className = 'sync-ok';
+      alignedView.hidden = false;
+      unalignedView.hidden = true;
+      if (!trueCipher.textContent) {
+        trueCipher.textContent = deob(TRUE_OBS);
+      }
+    } else {
+      syncEl.textContent = '对齐检测：未对齐';
+      syncEl.className = 'sync-bad';
+      alignedView.hidden = true;
+      unalignedView.hidden = false;
+      if (!fakeCipher.textContent) {
+        fakeCipher.textContent = FAKE;
+      }
+    }
+  }
+  refresh();
+  setInterval(refresh, 1000);
+})();
+</script>
+</body>
+</html>
